@@ -1,0 +1,37 @@
+diff --git a/crates/pixi_global/src/trampoline.rs b/crates/pixi_global/src/trampoline.rs
+index 7cd76ff..13ff1a1 100644
+--- a/crates/pixi_global/src/trampoline.rs
++++ b/crates/pixi_global/src/trampoline.rs
+@@ -44,7 +44,8 @@ const TRAMPOLINE_BIN: &[u8] =
+     include_bytes!("../../../trampoline/binaries/pixi-trampoline-aarch64-pc-windows-msvc.exe.zst");
+ 
+ #[cfg(target_arch = "aarch64")]
+-#[cfg(target_os = "linux")]
++// The static musl trampoline also runs on Android (e.g. Termux).
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ const TRAMPOLINE_BIN: &[u8] =
+     include_bytes!("../../../trampoline/binaries/pixi-trampoline-aarch64-unknown-linux-musl.zst");
+ 
+@@ -71,7 +72,8 @@ const TRAMPOLINE_BIN: &[u8] =
+     include_bytes!("../../../trampoline/binaries/pixi-trampoline-riscv64gc-unknown-linux-gnu.zst");
+ 
+ #[cfg(target_arch = "x86_64")]
+-#[cfg(target_os = "linux")]
++// The static musl trampoline also runs on Android (e.g. Termux).
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ const TRAMPOLINE_BIN: &[u8] =
+     include_bytes!("../../../trampoline/binaries/pixi-trampoline-x86_64-unknown-linux-musl.zst");
+ 
+diff --git a/crates/pixi_pty/src/unix/pty_process.rs b/crates/pixi_pty/src/unix/pty_process.rs
+index 69937bb..a658b2a 100644
+--- a/crates/pixi_pty/src/unix/pty_process.rs
++++ b/crates/pixi_pty/src/unix/pty_process.rs
+@@ -18,7 +18,7 @@ use std::{
+     thread, time,
+ };
+ 
+-#[cfg(target_os = "linux")]
++#[cfg(any(target_os = "linux", target_os = "android"))]
+ use nix::pty::ptsname_r;
+ 
+ /// Start a process in a forked tty so you can interact with it the same as you would
