@@ -5,10 +5,7 @@ A native Android/Bionic build of pixi 0.82.1 (prefix-dev/pixi @ b71aebc), cross-
 ## Install on the phone
 
 ```sh
-# copy pixi-aarch64-linux-android.xz to the device, then in Termux:
-unxz pixi-aarch64-linux-android.xz
-install -m 755 pixi-aarch64-linux-android $PREFIX/bin/pixi
-pixi --version
+curl -fL https://raw.githubusercontent.com/codegod100/pixi/termux/pixi-aarch64-linux-android.gz | gunzip > $PREFIX/bin/pixi && chmod +x $PREFIX/bin/pixi && pixi --version
 ```
 
 ## What works (tested in the aarch64 termux-docker image under qemu)
@@ -35,8 +32,11 @@ conda packages on the phone, proot-distro with the official pixi is still the pr
 
 ## Patches needed
 
-1. `pixi-android.patch`: use the static musl trampoline for `pixi global` on Android;
-   enable `nix::pty::ptsname_r` on Android.
+1. `pixi-android.patch`: embed a PIE Bionic trampoline for `pixi global` on Android
+   (the static musl one fails with `unexpected e_type: 2`, because termux-exec launches
+   binaries through `/system/bin/linker64`); enable `nix::pty::ptsname_r` on Android.
+   The patch is binary (`git apply` handles it), since it adds
+   `trampoline/binaries/pixi-trampoline-aarch64-linux-android.zst`.
 2. `rustls-platform-verifier`: its Android backend needs JNI init from an APK, so it's
    patched to use the generic Unix backend (same trick as termux-packages' `uv` recipe).
 3. `libdbus-sys` (vendored, pulled in by the keyring): build script rejects Android;
